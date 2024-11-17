@@ -1,0 +1,204 @@
+Task 1 - your application allow you to manage Task and Project entities.
+- you have to add missing annotations and code over entity classes and converters to make 
+  to store Task and Project and their relations in specified tables.
+Requirement : 
+1 Project.updates should be persisted in a table with the following structure :
+ a table name : PRODUCT_EVENT_UPDATES.
+ b Columns : PROJECT_ID as foreign key,USER_NAME as value of ItemUpdate.user,EVENT_NAME as value of ItemUpdate.date.
+ 
+2 Task.watchers should be persisted in a table with the following structure :
+ a table name : TODO_WATCHERS.
+ b Columns : TODO_ID as foreign key,LOGIN as value of String from Set.
+ 
+3 Task.comments should be persisted in a table with the following structure :
+ a table name : TODO_COMMENTS.
+ b Columns : TODO_ID as foreign key,AUTHOR as value of Comment.author,ADD_DATE as value of Comment.date,COMMENT as value of Comment.comment.
+ 
+4 Task.updates should be persisted in a table with the following structure :
+ a table name : TODO_UPDATES.
+ b Columns : TODO_ID as foreign key,AUTHOR as value of ItemUpdate.user,UPDATE_DATE as value of ItemUpdate.date.
+ 
+5 Task.tags should be persisted in a table with the following structure :
+ a table name : TODO_TAGS.
+ b Columns : TODO_ID as foreign key,NAME as key from Map,DESCRIPTION as value from Map.
+ 
+Tables -
+- the following table should exist after implementation.
+1 PROJECT - PROJECT_ID,NAME
+2 PRODUCT_EVENT_UPDATES - PROJECT_ID,USER_NAME,EVENT_NAME
+3 TODOS - TODO_ID,SUBJECT,DETAILS
+4 TODO_WATCHERS - TODO_ID,LOGIN
+5 TODO_COMMENTS - TODO_ID,AUTHOR,ADD_DATE,COMMENT
+6 TODO_UPDATES - TODO_ID,AUTHOR,UPDATE_DATE
+7 TODO_WATCHERS - TODO_ID,NAME,NAME,DESCRIPTION
+
+Assumptions
+- Class names and function signature should not be changed.
+
+Hints 
+- add missing annotations from the javax.persistence package to the Task and Project classes.
+
+ItemUpdate.java
+
+@Embedabble
+@NoArgsConstructor(access=AccessLevel.PRIVATE)
+@AllArgsConstructor
+@Getter
+public class ItemUpdate {
+private String user;
+private LocalDate date;
+}
+
+Comment.java
+@Embedabble
+@NoArgsConstructor(access=AccessLevel.PRIVATE)
+@AllArgsConstructor
+@Getter
+public class Comment {
+@Column(name="AUTHOR")
+private String author;
+
+@Column(name="ADD_DATE")
+private LocalDate date;
+
+@Column(name="COMMENT")
+private String comment;
+}
+
+============================================================================================
+Answer of above question -->
+============================================================================================
+import javax.persistence.*;
+import java.util.Map;
+import java.util.Set;
+
+@Entity
+@Table(name = "PROJECT")
+public class Project {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "PROJECT_ID")
+    private Long id;
+
+    @Column(name = "NAME")
+    private String name;
+
+    @OneToMany(mappedBy = "project")
+    private Set<ItemUpdate> updates;
+
+    // getters and setters
+}
+
+@Entity
+@Table(name = "TODOS")
+public class Task {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "TODO_ID")
+    private Long id;
+
+    @Column(name = "SUBJECT")
+    private String subject;
+
+    @Column(name = "DETAILS")
+    private String details;
+
+    @OneToMany(mappedBy = "task")
+    private Set<Watcher> watchers;
+
+    @OneToMany(mappedBy = "task")
+    private Set<Comment> comments;
+
+    @OneToMany(mappedBy = "task")
+    private Set<ItemUpdate> updates;
+
+    @ElementCollection
+    @CollectionTable(name = "TODO_TAGS", joinColumns = @JoinColumn(name = "TODO_ID"))
+    @MapKeyColumn(name = "NAME")
+    @Column(name = "DESCRIPTION")
+    private Map<String, String> tags;
+
+    // getters and setters
+}
+
+@Entity
+@Table(name = "PRODUCT_EVENT_UPDATES")
+public class ItemUpdate {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "PROJECT_ID")
+    private Project project;
+
+    @Column(name = "USER_NAME")
+    private String user;
+
+    @Column(name = "EVENT_NAME")
+    private String eventName;
+
+    // getters and setters
+}
+
+@Entity
+@Table(name = "TODO_WATCHERS")
+public class Watcher {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "TODO_ID")
+    private Task task;
+
+    @Column(name = "LOGIN")
+    private String login;
+
+    // getters and setters
+}
+
+@Entity
+@Table(name = "TODO_COMMENTS")
+public class Comment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "TODO_ID")
+    private Task task;
+
+    @Column(name = "AUTHOR")
+    private String author;
+
+    @Column(name = "ADD_DATE")
+    private LocalDate date;
+
+    @Column(name = "COMMENT")
+    private String comment;
+
+    // getters and setters
+}
+
+@Entity
+@Table(name = "TODO_UPDATES")
+public class TaskUpdate {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "TODO_ID")
+    private Task task;
+
+    @Column(name = "AUTHOR")
+    private String author;
+
+    @Column(name = "UPDATE_DATE")
+    private LocalDate date;
+
+    // getters and setters
+}
+=================================================================================================
+Task 2 
